@@ -1,0 +1,242 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.13;
+import "./IReciever.sol";
+
+contract RenewableEnergyCertificates {
+    ICertificateReceiverContract my_contract;
+    
+    // Define a Certificate struct with the specified fields
+    struct Certificate {
+        address ProjectAddress;
+        uint256 CertificateUniqueID;
+        string certificateData;
+        string certificateType;
+        string TrackingSystemID;
+        string RenewableFuelType;
+        string RenewableFacilityLocation;
+        string NameplateCapacityOfProject;
+        string ProjectName;
+        string EmissionsRateOfRenewableResource;
+        bool stateA; // Verification state
+        bool stateR; // Verification state
+    }
+
+    // Define a Project struct with the specified fields
+    struct Project {
+        address owner;
+        uint256 projectID;
+        string projectName;
+        string vision;
+        string domain;
+        bool verif;
+        string latitude;   // Added latitude
+        string longitude;  // Added longitude
+    }
+
+    // Constructor to set the ownerA to the deployer's address
+    constructor() {
+        ownerA = msg.sender;
+    }
+    
+    address public ownerA;
+    
+    // Mapping to store projects by ID
+    mapping(uint256 => Project) public allProjects;
+    
+    // Mapping to store verified projects by ID
+    mapping(uint256 => Project) public verifiedProjects;
+
+    // Mapping to store certificates by ID
+    mapping(uint256 => Certificate) public certificates;
+
+    // Mapping to store verified certificates by ID
+    mapping(uint256 => Certificate) public verifiedCertificates;
+
+    // Variable to store the next project ID
+    uint256 public nextProjectID;
+
+    // Variable to store the next certificate unique ID
+    uint256 public nextCertificateID;
+
+    // Modifier to restrict access to the ownerA
+    modifier onlyOwnerA() {
+        require(msg.sender == ownerA, "Only owner A can call this function");
+        _;
+    }
+
+    // Modifier to allow access only to project owners
+    modifier onlyProjectOwner() {
+        bool isProjectOwner = false;
+        for (uint i = 0; i < nextProjectID; i++) {
+            if (verifiedProjects[i].owner == msg.sender) {
+                isProjectOwner = true;
+                break;
+            }
+        }
+        require(isProjectOwner, "Only verified project owners can add certificates");
+        _;
+    }
+
+    // Function to add a new certificate
+    function addCertificate(
+        string memory _certificateData,
+        string memory _certificateType,
+        string memory _TrackingSystemID,
+        string memory _RenewableFuelType,
+        string memory _RenewableFacilityLocation,
+        string memory _NameplateCapacityOfProject,
+        string memory _ProjectName,
+        string memory _EmissionsRateOfRenewableResource
+    ) public onlyProjectOwner {
+        certificates[nextCertificateID] = Certificate({
+            ProjectAddress: msg.sender,
+            CertificateUniqueID: nextCertificateID,
+            certificateData: _certificateData,
+            certificateType: _certificateType,
+            TrackingSystemID: _TrackingSystemID,
+            RenewableFuelType: _RenewableFuelType,
+            RenewableFacilityLocation: _RenewableFacilityLocation,
+            NameplateCapacityOfProject: _NameplateCapacityOfProject,
+            ProjectName: _ProjectName,
+            EmissionsRateOfRenewableResource: _EmissionsRateOfRenewableResource,
+            stateA: false, // Initialize state as false
+            stateR: false
+        });
+        nextCertificateID++;
+    }
+
+    // Function to set the registry contract
+    function setRegistryCotract(address _contractaddr) public onlyOwnerA {
+        my_contract = ICertificateReceiverContract(_contractaddr);
+    }
+
+    // Function to retrieve certificate details by ID
+    function getCertificate(uint256 _certificateID) public view returns (Certificate memory) {
+        return certificates[_certificateID];
+    }
+
+    // Function to verify a certificate by ownerA
+    function verifyCertificate(uint256 _certificateID) public onlyOwnerA {
+        require(address(my_contract) != address(0), "Your registry contract is not set yet");
+        certificates[_certificateID].stateA = true; // Set state to true to indicate verification
+        verifiedCertificates[_certificateID] = certificates[_certificateID]; // Add to verified certificates
+        my_contract.getAllCertificatesFromFirstContract();
+    }
+
+    // Function to retrieve all certificates
+    function getAllCertificates() public view returns (Certificate[] memory) {
+        Certificate[] memory allCerts = new Certificate[](nextCertificateID);
+        for (uint i = 0; i < nextCertificateID; i++) {
+            allCerts[i] = certificates[i];
+        }
+        return allCerts;
+    }
+
+    // Function to retrieve all verified certificates
+    function getAllVerifiedCertificates() public view returns (Certificate[] memory) {
+        uint verifiedCount = 0;
+        for (uint i = 0; i < nextCertificateID; i++) {
+            if (certificates[i].stateA) {
+                verifiedCount++;
+            }
+        }
+        
+        Certificate[] memory allVerifiedCerts = new Certificate[](verifiedCount);
+        uint index = 0;
+        for (uint i = 0; i < nextCertificateID; i++) {
+            if (certificates[i].stateA) {
+                allVerifiedCerts[index] = certificates[i];
+                index++;
+            }
+        }
+        return allVerifiedCerts;
+    }
+
+    // Function to add a new project
+    function addProject(
+        string memory _projectName,
+        string memory _vision,
+        string memory _domain,
+        string memory _latitude,   // Added latitude
+        string memory _longitude   // Added longitude
+    ) public {
+        allProjects[nextProjectID] = Project({
+            owner: msg.sender, // Set the owner as the address of the sender
+            projectID: nextProjectID,
+            projectName: _projectName,
+            vision: _vision,
+            domain: _domain,
+            verif: false,
+            latitude: _latitude,   // Set latitude
+            longitude: _longitude  // Set longitude
+        });
+        nextProjectID++;
+    }
+
+    // Function to retrieve all projects
+    function getAllProjects() public view returns (Project[] memory) {
+        Project[] memory allProjs = new Project[](nextProjectID);
+        for (uint i = 0; i < nextProjectID; i++) {
+            allProjs[i] = allProjects[i];
+        }
+        return allProjs;
+    }
+
+    // Function to retrieve project details by ID
+    function getProject(uint256 _projectID) public view returns (
+        address owner,
+        uint256 projectID,
+        string memory projectName,
+        string memory vision,
+        string memory domain,
+        bool verif,
+        string memory latitude,   // Added latitude
+        string memory longitude   // Added longitude
+    ) {
+        Project memory proj = allProjects[_projectID];
+        return (
+            proj.owner,
+            proj.projectID,
+            proj.projectName,
+            proj.vision,
+            proj.domain,
+            proj.verif,
+            proj.latitude,   // Return latitude
+            proj.longitude   // Return longitude
+        );
+    }
+
+    // Function to verify a project by ownerA
+    function verifyProject(uint256 _projectID) public onlyOwnerA {
+        allProjects[_projectID].verif = true; // Set state to true to indicate verification
+        verifiedProjects[_projectID] = allProjects[_projectID];
+    }
+
+    // Function to transfer certificate ownership
+    function transferCertificate(uint256 _certificateID, address _newOwner) public {
+        Certificate storage certificate = certificates[_certificateID];
+        require(certificate.ProjectAddress == msg.sender, "Only the owner can transfer this certificate");
+        certificate.ProjectAddress = _newOwner;
+    }
+
+    // Function to retrieve all projects by a specific address
+    function getProjectsByAddress(address _address) public view returns (Project[] memory) {
+        uint projectCount = 0;
+        for (uint i = 0; i < nextProjectID; i++) {
+            if (allProjects[i].owner == _address) {
+                projectCount++;
+            }
+        }
+
+        Project[] memory projectsByAddress = new Project[](projectCount);
+        uint index = 0;
+        for (uint i = 0; i < nextProjectID; i++) {
+            if (allProjects[i].owner == _address) {
+                projectsByAddress[index] = allProjects[i];
+                index++;
+            }
+        }
+        return projectsByAddress;
+    }
+}

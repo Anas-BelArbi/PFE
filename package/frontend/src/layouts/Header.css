@@ -1,0 +1,22 @@
+.wider-modal .modal-dialog {
+    max-width: 90%;
+  }
+  
+  .token-details {
+    word-break: break-all;
+  }
+  
+  .token-details div {
+    margin-bottom: 10px;
+  }
+  
+  .token-details strong {
+    display: inline-block;
+    width: 100px;
+  }
+  .custom-dropdown-menu.show {
+    display: block;
+    position: absolute;
+    transform: translate3d(-100%, 0, 0); /* Aligns the menu to the right of the button */
+    top: 100%; /* Positions the dropdown right below the toggle */
+}

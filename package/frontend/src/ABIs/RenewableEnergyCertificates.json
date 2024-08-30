@@ -1,0 +1,843 @@
+{
+    "abi": [
+		{
+			"inputs": [],
+			"stateMutability": "nonpayable",
+			"type": "constructor"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "string",
+					"name": "_certificateData",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "_certificateType",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "_TrackingSystemID",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "_RenewableFuelType",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "_RenewableFacilityLocation",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "_NameplateCapacityOfProject",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "_ProjectName",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "_EmissionsRateOfRenewableResource",
+					"type": "string"
+				}
+			],
+			"name": "addCertificate",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "string",
+					"name": "_projectName",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "_vision",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "_domain",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "_latitude",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "_longitude",
+					"type": "string"
+				}
+			],
+			"name": "addProject",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"name": "allProjects",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "owner",
+					"type": "address"
+				},
+				{
+					"internalType": "uint256",
+					"name": "projectID",
+					"type": "uint256"
+				},
+				{
+					"internalType": "string",
+					"name": "projectName",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "vision",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "domain",
+					"type": "string"
+				},
+				{
+					"internalType": "bool",
+					"name": "verif",
+					"type": "bool"
+				},
+				{
+					"internalType": "string",
+					"name": "latitude",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "longitude",
+					"type": "string"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"name": "certificates",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "ProjectAddress",
+					"type": "address"
+				},
+				{
+					"internalType": "uint256",
+					"name": "CertificateUniqueID",
+					"type": "uint256"
+				},
+				{
+					"internalType": "string",
+					"name": "certificateData",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "certificateType",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "TrackingSystemID",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "RenewableFuelType",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "RenewableFacilityLocation",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "NameplateCapacityOfProject",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "ProjectName",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "EmissionsRateOfRenewableResource",
+					"type": "string"
+				},
+				{
+					"internalType": "bool",
+					"name": "stateA",
+					"type": "bool"
+				},
+				{
+					"internalType": "bool",
+					"name": "stateR",
+					"type": "bool"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
+			"name": "getAllCertificates",
+			"outputs": [
+				{
+					"components": [
+						{
+							"internalType": "address",
+							"name": "ProjectAddress",
+							"type": "address"
+						},
+						{
+							"internalType": "uint256",
+							"name": "CertificateUniqueID",
+							"type": "uint256"
+						},
+						{
+							"internalType": "string",
+							"name": "certificateData",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "certificateType",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "TrackingSystemID",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "RenewableFuelType",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "RenewableFacilityLocation",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "NameplateCapacityOfProject",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "ProjectName",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "EmissionsRateOfRenewableResource",
+							"type": "string"
+						},
+						{
+							"internalType": "bool",
+							"name": "stateA",
+							"type": "bool"
+						},
+						{
+							"internalType": "bool",
+							"name": "stateR",
+							"type": "bool"
+						}
+					],
+					"internalType": "struct RenewableEnergyCertificates.Certificate[]",
+					"name": "",
+					"type": "tuple[]"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
+			"name": "getAllProjects",
+			"outputs": [
+				{
+					"components": [
+						{
+							"internalType": "address",
+							"name": "owner",
+							"type": "address"
+						},
+						{
+							"internalType": "uint256",
+							"name": "projectID",
+							"type": "uint256"
+						},
+						{
+							"internalType": "string",
+							"name": "projectName",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "vision",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "domain",
+							"type": "string"
+						},
+						{
+							"internalType": "bool",
+							"name": "verif",
+							"type": "bool"
+						},
+						{
+							"internalType": "string",
+							"name": "latitude",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "longitude",
+							"type": "string"
+						}
+					],
+					"internalType": "struct RenewableEnergyCertificates.Project[]",
+					"name": "",
+					"type": "tuple[]"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
+			"name": "getAllVerifiedCertificates",
+			"outputs": [
+				{
+					"components": [
+						{
+							"internalType": "address",
+							"name": "ProjectAddress",
+							"type": "address"
+						},
+						{
+							"internalType": "uint256",
+							"name": "CertificateUniqueID",
+							"type": "uint256"
+						},
+						{
+							"internalType": "string",
+							"name": "certificateData",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "certificateType",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "TrackingSystemID",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "RenewableFuelType",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "RenewableFacilityLocation",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "NameplateCapacityOfProject",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "ProjectName",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "EmissionsRateOfRenewableResource",
+							"type": "string"
+						},
+						{
+							"internalType": "bool",
+							"name": "stateA",
+							"type": "bool"
+						},
+						{
+							"internalType": "bool",
+							"name": "stateR",
+							"type": "bool"
+						}
+					],
+					"internalType": "struct RenewableEnergyCertificates.Certificate[]",
+					"name": "",
+					"type": "tuple[]"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_certificateID",
+					"type": "uint256"
+				}
+			],
+			"name": "getCertificate",
+			"outputs": [
+				{
+					"components": [
+						{
+							"internalType": "address",
+							"name": "ProjectAddress",
+							"type": "address"
+						},
+						{
+							"internalType": "uint256",
+							"name": "CertificateUniqueID",
+							"type": "uint256"
+						},
+						{
+							"internalType": "string",
+							"name": "certificateData",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "certificateType",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "TrackingSystemID",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "RenewableFuelType",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "RenewableFacilityLocation",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "NameplateCapacityOfProject",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "ProjectName",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "EmissionsRateOfRenewableResource",
+							"type": "string"
+						},
+						{
+							"internalType": "bool",
+							"name": "stateA",
+							"type": "bool"
+						},
+						{
+							"internalType": "bool",
+							"name": "stateR",
+							"type": "bool"
+						}
+					],
+					"internalType": "struct RenewableEnergyCertificates.Certificate",
+					"name": "",
+					"type": "tuple"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_projectID",
+					"type": "uint256"
+				}
+			],
+			"name": "getProject",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "owner",
+					"type": "address"
+				},
+				{
+					"internalType": "uint256",
+					"name": "projectID",
+					"type": "uint256"
+				},
+				{
+					"internalType": "string",
+					"name": "projectName",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "vision",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "domain",
+					"type": "string"
+				},
+				{
+					"internalType": "bool",
+					"name": "verif",
+					"type": "bool"
+				},
+				{
+					"internalType": "string",
+					"name": "latitude",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "longitude",
+					"type": "string"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "address",
+					"name": "_address",
+					"type": "address"
+				}
+			],
+			"name": "getProjectsByAddress",
+			"outputs": [
+				{
+					"components": [
+						{
+							"internalType": "address",
+							"name": "owner",
+							"type": "address"
+						},
+						{
+							"internalType": "uint256",
+							"name": "projectID",
+							"type": "uint256"
+						},
+						{
+							"internalType": "string",
+							"name": "projectName",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "vision",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "domain",
+							"type": "string"
+						},
+						{
+							"internalType": "bool",
+							"name": "verif",
+							"type": "bool"
+						},
+						{
+							"internalType": "string",
+							"name": "latitude",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "longitude",
+							"type": "string"
+						}
+					],
+					"internalType": "struct RenewableEnergyCertificates.Project[]",
+					"name": "",
+					"type": "tuple[]"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
+			"name": "nextCertificateID",
+			"outputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
+			"name": "nextProjectID",
+			"outputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [],
+			"name": "ownerA",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "",
+					"type": "address"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "address",
+					"name": "_contractaddr",
+					"type": "address"
+				}
+			],
+			"name": "setRegistryCotract",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_certificateID",
+					"type": "uint256"
+				},
+				{
+					"internalType": "address",
+					"name": "_newOwner",
+					"type": "address"
+				}
+			],
+			"name": "transferCertificate",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"name": "verifiedCertificates",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "ProjectAddress",
+					"type": "address"
+				},
+				{
+					"internalType": "uint256",
+					"name": "CertificateUniqueID",
+					"type": "uint256"
+				},
+				{
+					"internalType": "string",
+					"name": "certificateData",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "certificateType",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "TrackingSystemID",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "RenewableFuelType",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "RenewableFacilityLocation",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "NameplateCapacityOfProject",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "ProjectName",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "EmissionsRateOfRenewableResource",
+					"type": "string"
+				},
+				{
+					"internalType": "bool",
+					"name": "stateA",
+					"type": "bool"
+				},
+				{
+					"internalType": "bool",
+					"name": "stateR",
+					"type": "bool"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"name": "verifiedProjects",
+			"outputs": [
+				{
+					"internalType": "address",
+					"name": "owner",
+					"type": "address"
+				},
+				{
+					"internalType": "uint256",
+					"name": "projectID",
+					"type": "uint256"
+				},
+				{
+					"internalType": "string",
+					"name": "projectName",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "vision",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "domain",
+					"type": "string"
+				},
+				{
+					"internalType": "bool",
+					"name": "verif",
+					"type": "bool"
+				},
+				{
+					"internalType": "string",
+					"name": "latitude",
+					"type": "string"
+				},
+				{
+					"internalType": "string",
+					"name": "longitude",
+					"type": "string"
+				}
+			],
+			"stateMutability": "view",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_certificateID",
+					"type": "uint256"
+				}
+			],
+			"name": "verifyCertificate",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_projectID",
+					"type": "uint256"
+				}
+			],
+			"name": "verifyProject",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		}
+	]
+}

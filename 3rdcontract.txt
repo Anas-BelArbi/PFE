@@ -1,0 +1,140 @@
+// SPDX-License-Identifier: MIT
+
+
+pragma solidity ^0.8.13;
+
+import "./CertificateReceiverContract.sol";
+
+contract CertificateListingContract {
+    address public certificateReceiverAddress;
+    CertificateReceiverContract certificateReceiver;
+
+    RenewableEnergyCertificates.Certificate[] public verifiedCertificates;
+
+    string[] public certificateCIDs;
+
+    constructor(address _certificateReceiverAddress) {
+        certificateReceiverAddress = _certificateReceiverAddress;
+        certificateReceiver = CertificateReceiverContract(certificateReceiverAddress);
+    }
+
+    function updateVerifiedCertificates() public {
+        RenewableEnergyCertificates.Certificate[] memory allCertificates = certificateReceiver.getAllCertificatesFromFirstContract();
+        delete verifiedCertificates;
+        for (uint i = 0; i < allCertificates.length; i++) {
+            if (allCertificates[i].stateA && allCertificates[i].stateR) {
+                verifiedCertificates.push(allCertificates[i]);
+            }
+        }
+    }
+
+    function getStoredVerifiedCertificates() public view returns (RenewableEnergyCertificates.Certificate[] memory) {
+        return verifiedCertificates;
+    }
+
+    function storeCIDs(string[] memory cids) public {
+        delete certificateCIDs;
+        for (uint i = 0; i < cids.length; i++) {
+            certificateCIDs.push(cids[i]);
+        }
+    }
+
+    function getStoredCIDs() public view returns (string[] memory) {
+        return certificateCIDs;
+    }
+
+    // function getCertificatesByCapacity() public view returns (RenewableEnergyCertificates.Certificate[] memory) {
+    //     RenewableEnergyCertificates.Certificate[] memory sortedCertificates = new RenewableEnergyCertificates.Certificate[](verifiedCertificates.length);
+    //     for (uint i = 0; i < verifiedCertificates.length; i++) {
+    //         sortedCertificates[i] = verifiedCertificates[i];
+    //     }
+
+    //     for (uint i = 0; i < sortedCertificates.length - 1; i++) {
+    //         for (uint j = i + 1; j < sortedCertificates.length; j++) {
+    //             if (parseInt(sortedCertificates[i].NameplateCapacityOfProject) < parseInt(sortedCertificates[j].NameplateCapacityOfProject)) {
+    //                 RenewableEnergyCertificates.Certificate memory temp = sortedCertificates[i];
+    //                 sortedCertificates[i] = sortedCertificates[j];
+    //                 sortedCertificates[j] = temp;
+    //             }
+    //         }
+    //     }
+    //     return sortedCertificates;
+    // }
+
+    // function getCertificatesByEmissionsRate() public view returns (RenewableEnergyCertificates.Certificate[] memory) {
+    //     RenewableEnergyCertificates.Certificate[] memory sortedCertificates = new RenewableEnergyCertificates.Certificate[](verifiedCertificates.length);
+    //     for (uint i = 0; i < verifiedCertificates.length; i++) {
+    //         sortedCertificates[i] = verifiedCertificates[i];
+    //     }
+
+    //     for (uint i = 0; i < sortedCertificates.length - 1; i++) {
+    //         for (uint j = i + 1; j < sortedCertificates.length; j++) {
+    //             if (parseInt(sortedCertificates[i].EmissionsRateOfRenewableResource) > parseInt(sortedCertificates[j].EmissionsRateOfRenewableResource)) {
+    //                 RenewableEnergyCertificates.Certificate memory temp = sortedCertificates[i];
+    //                 sortedCertificates[i] = sortedCertificates[j];
+    //                 sortedCertificates[j] = temp;
+    //             }
+    //         }
+    //     }
+    //     return sortedCertificates;
+    // }
+
+    // function getProjectsByCertificateCount() public view returns (RenewableEnergyCertificates.Project[] memory) {
+    //     RenewableEnergyCertificates.Project[] memory allProjects = certificateReceiver.renewableEnergyCertificates().getAllProjects();
+    //     RenewableEnergyCertificates.Project[] memory sortedProjects = new RenewableEnergyCertificates.Project[](allProjects.length);
+    //     uint[] memory certificateCounts = new uint[](allProjects.length);
+
+    //     for (uint i = 0; i < allProjects.length; i++) {
+    //         for (uint j = 0; j < verifiedCertificates.length; j++) {
+    //             if (verifiedCertificates[j].ProjectAddress == allProjects[i].owner) {
+    //                 certificateCounts[i]++;
+    //             }
+    //         }
+    //         sortedProjects[i] = allProjects[i];
+    //     }
+
+    //     for (uint i = 0; i < sortedProjects.length - 1; i++) {
+    //         for (uint j = i + 1; j < sortedProjects.length; j++) {
+    //             if (certificateCounts[i] < certificateCounts[j]) {
+    //                 RenewableEnergyCertificates.Project memory tempProject = sortedProjects[i];
+    //                 sortedProjects[i] = sortedProjects[j];
+    //                 sortedProjects[j] = tempProject;
+
+    //                 uint tempCount = certificateCounts[i];
+    //                 certificateCounts[i] = certificateCounts[j];
+    //                 certificateCounts[j] = tempCount;
+    //             }
+    //         }
+    //     }
+    //     return sortedProjects;
+    // }
+
+    function getCertificateTypeCounts() public view returns (uint256 solar, uint256 wind, uint256 hydro, uint256 geothermal, uint256 biomass) {
+    for (uint i = 0; i < verifiedCertificates.length; i++) {
+        if (keccak256(bytes(verifiedCertificates[i].certificateType)) == keccak256(bytes("Solar"))) {
+            solar++;
+        } else if (keccak256(bytes(verifiedCertificates[i].certificateType)) == keccak256(bytes("Wind"))) {
+            wind++;
+        } else if (keccak256(bytes(verifiedCertificates[i].certificateType)) == keccak256(bytes("Hydroelectricity"))) {
+            hydro++;
+        } else if (keccak256(bytes(verifiedCertificates[i].certificateType)) == keccak256(bytes("Geothermal"))) {
+            geothermal++;
+        } else if (keccak256(bytes(verifiedCertificates[i].certificateType)) == keccak256(bytes("Biomass"))) {
+            biomass++;
+        }
+    }
+    return (solar, wind, hydro, geothermal, biomass);
+}
+
+
+    function parseInt(string memory _a) internal pure returns (uint) {
+        bytes memory bresult = bytes(_a);
+        uint mint = 0;
+        for (uint i = 0; i < bresult.length; i++) {
+            if (uint8(bresult[i]) >= 48 && uint8(bresult[i]) <= 57) {
+                mint = mint * 10 + (uint8(bresult[i]) - 48);
+            }
+        }
+        return mint;
+    }
+}

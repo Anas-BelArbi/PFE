@@ -1,0 +1,272 @@
+// SPDX-License-Identifier: MIT
+
+
+pragma solidity ^0.8.13;
+
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.9/contracts/token/ERC721/IERC721.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.9/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+
+contract NFTMarketplace is Ownable, ReentrancyGuard {
+    using Counters for Counters.Counter;
+    Counters.Counter private _listingIdCounter;
+    Counters.Counter private _auctionIdCounter;
+
+    enum ListingStatus { Active, Sold, Cancelled }
+    enum AuctionStatus { Active, Ended, Cancelled }
+
+    struct Listing {
+        address seller;
+        address nftContract;
+        uint256 tokenId;
+        uint256 price;
+        ListingStatus status;
+        uint256 listingId;
+    }
+
+    struct Auction {
+        address seller;
+        address nftContract;
+        uint256 tokenId;
+        uint256 minBid;
+        address highestBidder;
+        uint256 highestBid;
+        AuctionStatus status;
+        uint256 endTime;
+        uint256 _auctionIdCounter;
+    }
+
+    struct Sale {
+        address seller;
+        address buyer;
+        address nftContract;
+        uint256 tokenId;
+        uint256 price;
+        uint256 timestamp;
+    }
+
+    uint256 public listingFee = 1 wei;
+    uint256 public auctionFee = 1 wei;
+
+    mapping(address => Sale[]) public sellerSales;
+    mapping(uint256 => Listing) public listings;
+    mapping(uint256 => Auction) public auctions;
+    Sale[] public allSales;
+
+    event NFTListed(uint256 listingId, address seller, address nftContract, uint256 tokenId, uint256 price);
+    event NFTSold(uint256 listingId, address buyer, uint256 price);
+    event ListingCancelled(uint256 listingId);
+
+    event AuctionCreated(uint256 auctionId, address seller, address nftContract, uint256 tokenId, uint256 minBid, uint256 endTime);
+    event BidPlaced(uint256 auctionId, address bidder, uint256 amount);
+    event AuctionEnded(uint256 auctionId, address winner, uint256 amount);
+    event AuctionCancelled(uint256 auctionId);
+
+    function listNFT(address nftContract, uint256 tokenId, uint256 price) external payable nonReentrant {
+        require(msg.value >= listingFee, "Listing fee required");
+        require(IERC721(nftContract).ownerOf(tokenId) == msg.sender, "Not the owner of the NFT");
+
+        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
+
+        uint256 listingId = _listingIdCounter.current();
+        listings[listingId] = Listing({
+            seller: msg.sender,
+            nftContract: nftContract,
+            tokenId: tokenId,
+            price: price,
+            status: ListingStatus.Active,
+            listingId : listingId
+        });
+
+        _listingIdCounter.increment();
+        emit NFTListed(listingId, msg.sender, nftContract, tokenId, price);
+    }
+
+    function buyNFT(uint256 listingId) external payable nonReentrant {
+        Listing storage listing = listings[listingId];
+        require(listing.status == ListingStatus.Active, "Listing is not active");
+        require(msg.value == listing.price, "Incorrect price");
+
+        listing.status = ListingStatus.Sold;
+
+        IERC721(listing.nftContract).transferFrom(address(this), msg.sender, listing.tokenId);
+        payable(listing.seller).transfer(msg.value);
+
+        // Record the sale
+        _recordSale(listing.seller, msg.sender, listing.nftContract, listing.tokenId, listing.price);
+
+        emit NFTSold(listingId, msg.sender, listing.price);
+    }
+
+    function cancelListing(uint256 listingId) external nonReentrant {
+        Listing storage listing = listings[listingId];
+        require(listing.seller == msg.sender, "Not the seller");
+        require(listing.status == ListingStatus.Active, "Listing is not active");
+
+        listing.status = ListingStatus.Cancelled;
+        IERC721(listing.nftContract).transferFrom(address(this), msg.sender, listing.tokenId);
+
+        emit ListingCancelled(listingId);
+    }
+
+    function createAuction(address nftContract, uint256 tokenId, uint256 minBid, uint256 duration) external payable nonReentrant {
+        require(msg.value == auctionFee, "Auction fee required");
+        require(IERC721(nftContract).ownerOf(tokenId) == msg.sender, "Not the owner of the NFT");
+
+        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
+
+        uint256 auctionId = _auctionIdCounter.current();
+        auctions[auctionId] = Auction({
+            seller: msg.sender,
+            nftContract: nftContract,
+            tokenId: tokenId,
+            minBid: minBid,
+            highestBidder: address(0),
+            highestBid: 0,
+            status: AuctionStatus.Active,
+            endTime: block.timestamp + duration,
+            _auctionIdCounter : auctionId
+        });
+
+        _auctionIdCounter.increment();
+        emit AuctionCreated(auctionId, msg.sender, nftContract, tokenId, minBid, block.timestamp + duration);
+    }
+
+    function placeBid(uint256 auctionId) external payable nonReentrant {
+        Auction storage auction = auctions[auctionId];
+        require(auction.status == AuctionStatus.Active, "Auction is not active");
+        require(block.timestamp < auction.endTime, "Auction has ended");
+        require(msg.value >= auction.minBid && msg.value >= auction.highestBid, "Bid is too low");
+
+        if (auction.highestBidder != address(0)) {
+            payable(auction.highestBidder).transfer(auction.highestBid);
+        }
+
+        auction.highestBidder = msg.sender;
+        auction.highestBid = msg.value;
+
+        emit BidPlaced(auctionId, msg.sender, msg.value);
+    }
+
+    function endAuction(uint256 auctionId) external nonReentrant {
+        Auction storage auction = auctions[auctionId];
+        require(block.timestamp >= auction.endTime, "Auction is not yet ended");
+        require(auction.status == AuctionStatus.Active, "Auction is not active");
+
+        auction.status = AuctionStatus.Ended;
+
+        if (auction.highestBidder != address(0)) {
+            IERC721(auction.nftContract).transferFrom(address(this), auction.highestBidder, auction.tokenId);
+            payable(auction.seller).transfer(auction.highestBid);
+
+            // Record the sale
+            _recordSale(auction.seller, auction.highestBidder, auction.nftContract, auction.tokenId, auction.highestBid);
+
+            emit AuctionEnded(auctionId, auction.highestBidder, auction.highestBid);
+        } else {
+            IERC721(auction.nftContract).transferFrom(address(this), auction.seller, auction.tokenId);
+            emit AuctionCancelled(auctionId);
+        }
+    }
+
+    function cancelAuction(uint256 auctionId) external nonReentrant {
+        Auction storage auction = auctions[auctionId];
+        require(auction.seller == msg.sender, "Not the seller");
+        require(auction.status == AuctionStatus.Active, "Auction is not active");
+
+        auction.status = AuctionStatus.Cancelled;
+        IERC721(auction.nftContract).transferFrom(address(this), auction.seller, auction.tokenId);
+
+        if (auction.highestBidder != address(0)) {
+            payable(auction.highestBidder).transfer(auction.highestBid);
+        }
+
+        emit AuctionCancelled(auctionId);
+    }
+
+    function setListingFee(uint256 _listingFee) external onlyOwner {
+        listingFee = _listingFee;
+    }
+
+    function setAuctionFee(uint256 _auctionFee) external onlyOwner {
+        auctionFee = _auctionFee;
+    }
+
+    function withdraw() external onlyOwner {
+        payable(owner()).transfer(address(this).balance);
+    }
+    
+    function getActiveListings() external view returns (Listing[] memory) {
+        uint256 totalListings = _listingIdCounter.current();
+        uint256 activeCount = 0;
+        
+        for (uint256 i = 0; i < totalListings; i++) {
+            if (listings[i].status == ListingStatus.Active) {
+                activeCount++;
+            }
+        }
+
+        Listing[] memory activeListings = new Listing[](activeCount);
+        uint256 index = 0;
+        
+        for (uint256 i = 0; i < totalListings; i++) {
+            if (listings[i].status == ListingStatus.Active) {
+                activeListings[index] = listings[i];
+                index++;
+            }
+        }
+
+        return activeListings;
+    }
+
+    function getActiveAuctions() external view returns (Auction[] memory) {
+        uint256 totalAuctions = _auctionIdCounter.current();
+        uint256 activeCount = 0;
+
+        for (uint256 i = 0; i < totalAuctions; i++) {
+            if (auctions[i].status == AuctionStatus.Active) {
+                activeCount++;
+            }
+        }
+
+        Auction[] memory activeAuctions = new Auction[](activeCount);
+        uint256 index = 0;
+
+        for (uint256 i = 0; i < totalAuctions; i++) {
+            if (auctions[i].status == AuctionStatus.Active) {
+                activeAuctions[index] = auctions[i];
+                index++;
+            }
+        }
+
+        return activeAuctions;
+    }
+
+    function getSalesTable() external view returns (Sale[] memory) {
+        return allSales;
+    }
+
+    function _recordSale(address seller, address buyer, address nftContract, uint256 tokenId, uint256 price) private {
+        Sale memory newSale = Sale({
+            seller: seller,
+            buyer: buyer,
+            nftContract: nftContract,
+            tokenId: tokenId,
+            price: price,
+            timestamp: block.timestamp
+        });
+
+        sellerSales[seller].push(newSale);
+        allSales.push(newSale);
+    }
+
+    function _getWeekYear(uint256 timestamp) private pure returns (uint256 week, uint256 year) {
+        uint256 totalDays = timestamp / 86400;
+        year = 1970 + totalDays / 365; // This is a simplified version, a more precise calculation is needed for leap years
+        uint256 dayOfYear = totalDays % 365;
+
+        week = dayOfYear / 7;
+        return (week, year);
+    }
+}

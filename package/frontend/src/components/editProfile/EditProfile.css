@@ -1,0 +1,25 @@
+.profile-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto;
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .profile-image-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .card-header {
+    position: relative;
+    text-align: center;
+  }
+  
+  .card-header h2 {
+    margin-top: 80px;
+  }
+  

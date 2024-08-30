@@ -1,0 +1,235 @@
+// // SPDX-License-Identifier: MIT
+
+// pragma solidity ^0.8.13;
+
+// import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.4/contracts/token/ERC721/ERC721.sol";
+// import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.4/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+// import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.4/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+// import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.4/contracts/access/Ownable.sol";
+
+// contract MyToken is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
+//     uint256 private _totalSupply;
+
+//     constructor() ERC721("RenewableEnergieCertificate", "REC") {
+//         _totalSupply = 0;
+//     }
+
+//     struct BurnedTokenInfo {
+//         uint256 tokenId;
+//         string uri;
+//         uint256 price; // Assuming you want to save the price as well
+//         address burnedBy;
+//         uint256 burnedAt; // Timestamp of when the token was burned
+//     }
+
+//     mapping(address => uint256[]) private _ownedTokens;
+//     mapping(address => BurnedTokenInfo[]) private _burnedTokens;
+
+//     function safeMint(address to, uint256 tokenId, string memory uri) public {
+//         _safeMint(to, tokenId);
+//         _setTokenURI(tokenId, uri);
+//         _ownedTokens[to].push(tokenId);
+//         _totalSupply += 1;
+//     }
+
+//     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal override {
+//         super._beforeTokenTransfer(from, to, tokenId);
+        
+//         if (from != address(0) && to == address(0)) {
+//             uint256 index = findTokenIndex(from, tokenId);
+//             removeToken(from, index);
+//         } else if (from != address(0)) {
+//             uint256 index = findTokenIndex(from, tokenId);
+//             removeToken(from, index);
+//         }
+        
+//         if (to != address(0)) {
+//             _ownedTokens[to].push(tokenId);
+//         }
+//     }
+
+//     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+//         address owner = ownerOf(tokenId);
+//         uint256 index = findTokenIndex(owner, tokenId);
+//         removeToken(owner, index);
+
+//         BurnedTokenInfo memory burnedToken = BurnedTokenInfo({
+//             tokenId: tokenId,
+//             uri: tokenURI(tokenId),
+//             price: 0, // Assuming price is not stored, set it to 0 or fetch the actual price
+//             burnedBy: owner,
+//             burnedAt: block.timestamp // Record the timestamp of when the token was burned
+//         });
+
+//         _burnedTokens[owner].push(burnedToken);
+        
+//         super._burn(tokenId);
+//         _totalSupply -= 1;
+//     }
+
+//     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
+//         return super.tokenURI(tokenId);
+//     }
+
+//     function tokensOfOwner(address owner) external view returns (uint256[] memory) {
+//         uint256[] memory ownedTokensTemp = new uint256[](balanceOf(owner));
+//         uint256 counter = 0;
+
+//         for (uint256 tokenId = 1; tokenId <= _totalSupply; tokenId++) {
+//             if (_exists(tokenId) && ownerOf(tokenId) == owner) {
+//                 ownedTokensTemp[counter] = tokenId;
+//                 counter++;
+//             }
+//         }
+
+//         return ownedTokensTemp;
+//     }
+
+//     function burnedTokensOfOwner(address owner) external view returns (BurnedTokenInfo[] memory) {
+//         return _burnedTokens[owner];
+//     }
+
+//     function findTokenIndex(address owner, uint256 tokenId) internal view returns (uint256) {
+//         uint256[] memory tokens = _ownedTokens[owner];
+//         for (uint256 i = 0; i < tokens.length; i++) {
+//             if (tokens[i] == tokenId) {
+//                 return i;
+//             }
+//         }
+//         revert("Token not found");
+//     }
+
+//     function removeToken(address owner, uint256 index) internal {
+//         uint256[] storage tokens = _ownedTokens[owner];
+//         tokens[index] = tokens[tokens.length - 1];
+//         tokens.pop();
+//     }
+
+//     function totalSupply() public view returns (uint256) {
+//         return _totalSupply;
+//     }
+// }
+
+pragma solidity ^0.8.13;
+
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.4/contracts/token/ERC721/ERC721.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.4/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.4/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.4/contracts/access/Ownable.sol";
+
+contract MyToken is ERC721, ERC721URIStorage, ERC721Burnable, Ownable {
+    uint256 private _totalSupply;
+
+    constructor() ERC721("RenewableEnergieCertificate", "REC") {
+        _totalSupply = 0;
+    }
+
+    struct BurnedTokenInfo {
+        uint256 tokenId;
+        string uri;
+        bytes32 transactionHash;
+        address burnedBy;
+        uint256 burnedAt; // Timestamp of when the token was burned
+    }
+
+    mapping(address => BurnedTokenInfo[]) private _burnedTokens;
+    mapping(address => uint256) private _mintedCount; // To store the count of certificates minted by each address
+
+    function safeMint(address to, uint256 tokenId, string memory uri) public {
+        _safeMint(to, tokenId);
+        _setTokenURI(tokenId, uri);
+        _totalSupply += 1;
+        _mintedCount[to] += 1; // Increment the count for the minter
+    }
+
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal override {
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+        address owner = ownerOf(tokenId);
+
+        BurnedTokenInfo memory burnedToken = BurnedTokenInfo({
+            tokenId: tokenId,
+            uri: tokenURI(tokenId),
+            transactionHash: keccak256(abi.encodePacked(block.number, msg.sender, owner)), // Using keccak256 to simulate transaction hash
+            burnedBy: owner,
+            burnedAt: block.timestamp // Record the timestamp of when the token was burned
+        });
+
+        _burnedTokens[owner].push(burnedToken);
+        
+        super._burn(tokenId);
+        _totalSupply -= 1;
+    }
+
+    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
+        return super.tokenURI(tokenId);
+    }
+
+    function tokensOfOwner(address owner) external view returns (uint256[] memory) {
+        uint256 balance = balanceOf(owner);
+        uint256[] memory ownedTokens = new uint256[](balance);
+        uint256 counter = 0;
+
+        for (uint256 tokenId = 1; tokenId <= _totalSupply; tokenId++) {
+            if (_exists(tokenId) && ownerOf(tokenId) == owner) {
+                ownedTokens[counter] = tokenId;
+                counter++;
+            }
+        }
+
+        return ownedTokens;
+    }
+
+    function burnedTokensOfOwner(address owner) external view returns (BurnedTokenInfo[] memory) {
+        return _burnedTokens[owner];
+    }
+
+    function totalSupply() public view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function getTopMinters() public view returns (address[] memory, uint256[] memory) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < _totalSupply; i++) {
+            if (_exists(i)) {
+                count++;
+            }
+        }
+
+        address[] memory minters = new address[](count);
+        uint256[] memory mintedCounts = new uint256[](count);
+        uint256 index = 0;
+
+        for (uint256 i = 0; i < _totalSupply; i++) {
+            if (_exists(i)) {
+                address owner = ownerOf(i);
+                bool exists = false;
+                for (uint256 j = 0; j < index; j++) {
+                    if (minters[j] == owner) {
+                        mintedCounts[j]++;
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    minters[index] = owner;
+                    mintedCounts[index] = 1;
+                    index++;
+                }
+            }
+        }
+
+        for (uint256 i = 0; i < index; i++) {
+            for (uint256 j = i + 1; j < index; j++) {
+                if (mintedCounts[i] < mintedCounts[j]) {
+                    (minters[i], minters[j]) = (minters[j], minters[i]);
+                    (mintedCounts[i], mintedCounts[j]) = (mintedCounts[j], mintedCounts[i]);
+                }
+            }
+        }
+
+        return (minters, mintedCounts);
+    }
+}

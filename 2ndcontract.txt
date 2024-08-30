@@ -1,0 +1,63 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+import "contracts/AuthorityVerif.sol";
+import "contracts/IToken.sol";
+
+contract CertificateReceiverContract {
+    ITokenContract my_contract;
+
+    address public ownerR;
+    RenewableEnergyCertificates public renewableEnergyCertificates;
+
+    RenewableEnergyCertificates.Certificate[] public certificates;
+
+    // Mapping to keep track of added certificate IDs
+    mapping(uint256 => bool) public addedCertificateIDs;
+
+    constructor(address _renewableEnergyCertificatesAddress) {
+        ownerR = msg.sender; // Set ownerR to the deployer's address
+        renewableEnergyCertificates = RenewableEnergyCertificates(_renewableEnergyCertificatesAddress);
+    }
+
+    // Function to get all certificates from the first contract
+    function getAllCertificatesFromFirstContract() external returns (RenewableEnergyCertificates.Certificate[] memory) {
+        RenewableEnergyCertificates.Certificate[] memory allCertificates = renewableEnergyCertificates.getAllCertificates();
+        for (uint i = 0; i < allCertificates.length; i++) {
+            if (allCertificates[i].stateA && !addedCertificateIDs[allCertificates[i].CertificateUniqueID]) {
+                certificates.push(allCertificates[i]);
+                addedCertificateIDs[allCertificates[i].CertificateUniqueID] = true; // Mark this certificate ID as added
+            }
+        }
+        return certificates;
+    }
+
+    // Function to get a certificate from the first contract by index
+    function getCertificateFromFirstContract(uint _index) external view returns (RenewableEnergyCertificates.Certificate memory) {
+        return renewableEnergyCertificates.getCertificate(_index);
+    }
+
+    // Function to retrieve a certificate from the local storage by index
+    function getLocalCertificate(uint _index) external view returns (RenewableEnergyCertificates.Certificate memory) {
+        return certificates[_index];
+    }
+
+    // Modifier to restrict access to the ownerR
+    modifier onlyOwnerR() {
+        require(msg.sender == ownerR, "Only owner R can call this function");
+        _;
+    }
+
+     // function to set the registry contract
+    function setRegistryCotract(address _contractaddr) public onlyOwnerR{
+        my_contract= ITokenContract(_contractaddr);
+    }
+
+    // Function to verify a certificate by ownerR
+    function verifyCertificateRegistry(uint _index) public onlyOwnerR {
+        require(address(my_contract)!= address(0) ,"Your registry contract is not set yet");
+
+        certificates[_index].stateR = true; // Set state to true to indicate verification
+        my_contract.updateVerifiedCertificates();
+    }
+}

@@ -1,0 +1,56 @@
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+    background: none;
+    border: none;
+    box-shadow: none;
+  }
+  
+  .popup-container {
+    font-family: Arial, sans-serif;
+    color: #2E3A59;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    max-width: auto; /* Set a maximum width for the popup */
+  }
+  
+  .popup-header {
+    background-color: #DCE3F0;
+    color: #325186;
+    padding: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .popup-header h4 {
+    margin: 0;
+    font-size: 16px; /* Adjust font size for better fit */
+  }
+  
+  .popup-close {
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .popup-content {
+    padding: 10px;
+  }
+  
+  .popup-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .popup-table td {
+    padding: 5px;
+    word-wrap: break-word; /* Ensure long text wraps within the cell */
+  }
+  
+  .popup-table td:first-child {
+    font-weight: bold;
+    color: #2E3A59;
+  }
+  
